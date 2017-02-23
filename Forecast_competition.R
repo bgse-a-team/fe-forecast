@@ -32,42 +32,35 @@ jarque.bera.test(summary(lm1)$residuals) # Evidence of normality
 
 # AR(1) with no predictors
 ar1 <- arima(data[,"TARGET"], order=c(1,0,0))
-ar1
 ar1$aic
 Box.test(ar1$residuals, lag=22, type="Ljung-Box") # Reject the null hypothesis of independence of the residuals
 acf(ar1$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
+pacf(ar1$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
 jarque.bera.test(ar1$residuals) # Evidence of normality of the residuals
-acf(ar1$residuals + data[,"TARGET"], ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2') # Autorrelation fitted values (exponential decrease like the target variable)
-pacf(ar1$residuals + data[,"TARGET"], ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2') # Autorrelation fitted values (close to exponential decrease like the target variable)
 
 # MA(1) with no predictors
 ma1 <- arima(data[,"TARGET"], order=c(0,0,1))
-ma1
 ma1$aic
 Box.test(ma1$residuals, lag=22, type="Ljung-Box") # Reject the null hypothesis of independence of the residuals
 acf(ma1$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
+pacf(ma1$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
 jarque.bera.test(ma1$residuals) # Evidence of normality of the residuals
-acf(ma1$residuals + data[,"TARGET"], ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2') # Autorrelation fitted values (exponential decrease like the target variable)
-pacf(ma1$residuals + data[,"TARGET"], ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2') # Autorrelation fitted values (close to exponential decrease like the target variable)
 
 # ARMA(1,1) with no predictors
 arma11 <- arima(data[,"TARGET"], order=c(1,0,1))
-arma11
-ma1$aic
+arma11$aic
 Box.test(arma11$residuals, lag=22, type="Ljung-Box") # Fail to reject the null hypothesis of independence of the residuals
 acf(arma11$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
+pacf(arma11$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
 jarque.bera.test(arma11$residuals) # Evidence of normality of the residuals
-acf(arma11$residuals + data[,"TARGET"], ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2') # Autorrelation fitted values (exponential decrease like the target variable)
-pacf(arma11$residuals + data[,"TARGET"], ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2') # Autorrelation fitted values (close to exponential decrease like the target variable)
 
+# ARMA(2,1) with no predictors
+arma21 <- arima(data[,"TARGET"], order=c(2,0,1))
+arma21$aic
 
-
-
-
-
-
-
-
+# ARMA(2,2) with no predictors
+arma22 <- arima(data[,"TARGET"], order=c(2,0,2))
+arma22$aic
 
 
 
