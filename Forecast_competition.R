@@ -62,5 +62,8 @@ arma21$aic
 arma22 <- arima(data[,"TARGET"], order=c(2,0,2))
 arma22$aic
 
+# ARMA(1,2) with no predictors
+arma12 <- arima(data[,"TARGET"], order=c(1,0,2))
+arma12$aic
 
 
