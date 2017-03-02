@@ -2,6 +2,7 @@ library(readr)
 library(tseries)
 library(lmtest)
 library(sandwich)
+library(TSA)
 data <- as.data.frame(read_csv("~/Desktop/forecast-competition/fe-forecast/forecast-competition-training.csv"))
 
 # Plot TARGET variable
@@ -46,7 +47,6 @@ jarque.bera.test(ma1$residuals) # Evidence of normality of the residuals
 # ARMA(1,1) with no predictors
 arma11 <- arima(data[,"TARGET"], order=c(1,0,1))
 arma11$aic
--2/length(data[,"TARGET"])*(arma11$loglik) + 2/length(data[,"TARGET"])*2
 Box.test(arma11$residuals, lag=22, type="Ljung-Box") # Fail to reject the null hypothesis of independence of the residuals
 acf(arma11$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
 pacf(arma11$residuals, ylim=c(-0.1,1), lwd=5, xlim=c(0,25), col='darkorange2')
@@ -55,6 +55,8 @@ jarque.bera.test(arma11$residuals) # Evidence of normality of the residuals
 # ARMA(2,1) with no predictors
 arma21 <- arima(data[,"TARGET"], order=c(2,0,1))
 arma21$aic
+AIC(arma21)
+(-2/length(data[,"TARGET"])*(arma21$loglik) + 2/length(data[,"TARGET"])*2)*length(data[,"TARGET"])
 
 # ARMA(2,2) with no predictors
 arma22 <- arima(data[,"TARGET"], order=c(2,0,2))
@@ -123,17 +125,24 @@ archlm <- lm(y ~ X)
 archlm.statistic <- n*summary(archlm)$r.squared
 1-pchisq(archlm.statistic,1) # Reject null hypothesis of absence of volatility clustering
 
+# ARCH(1) with no predictors
+arch11 <- garch(data[,"TARGET"], order = c(0,1))
+AIC(arch11)
+
 # GARCH(1,1) with no predictors
 garch11 <- garch(data[,"TARGET"], order = c(1,1))
-aic <- -2/length(data[,"TARGET"])*(-garch11$n.likeli) + 2/length(data[,"TARGET"])*3
-aic
+AIC(garch11)
+
+# Compute principal components
+x <- prcomp(data[,3:ncol(data)], center=T, scale.=T)
+principal_components <- x$x
+
+for (i in 1:ncol(principal_componenets)){
+  
+}
 
 
-
-
-
-
-
+arimax(data[,"TARGET"],order=c(1,0,1), xtransf = data.frame(principal_components)[,1:3], transfer=list(c(1,0)))
 
 
 
