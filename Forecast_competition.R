@@ -139,35 +139,17 @@ principal_components <- x$x
 
 number_training <- 400
 mean_error <- c()
-for (j in 1:(nrow(data)-number_training)){
-  errors <- c()
-  x <- prcomp(data[1:(number_training + j - 1),3:ncol(data)], center=T, scale.=T)
-  principal_components <- x$x
-  for (i in 1:ncol(principal_components)){
-    model <- lm(data[2:(number_training + j - 1),"TARGET"] ~ data[1:(number_training + j - 2),"TARGET"] + principal_components[1:(number_training + j - 2),1:i])
-    errors[i] <- (data[number_training + j,"TARGET"] - predict(model, n.ahead=1))^2
-  }
-  mean_error[j] <- mean(errors)
-}
-
-
-
-
-
-
-
-
-
-
-number_training <- 400
-mean_error <- c()
 for (i in 1:49){
   for (j in 1:(nrow(data)-number_training)){
     errors <- c()
     x <- prcomp(data[1:(number_training + j),3:ncol(data)], center=T, scale.=T)
     principal_components <- x$x
-    model <- lm(data[2:(number_training + j - 1),"TARGET"] ~ data[1:(number_training + j - 2),"TARGET"] + principal_components[1:(nrow(principal_components)-2),1:i])
-    errors[j] <- (data[(number_training + j),"TARGET"] - predict(model, newdata=as.data.frame(principal_components[(number_training + j),1:i])))^2
+    x1 <- data[1:(number_training + j - 2),"TARGET"]
+    model <- lm(data[2:(number_training + j - 1),"TARGET"] ~ x1  + principal_components[1:(nrow(principal_components)-2),1:i])
+    names <- paste0(rep("principal_components[1:(nrow(principal_components) - 2), 1:i]",i),"PC",1:i)
+    newdata <- data.frame(data[number_training + j - 1,"TARGET"],principal_components[(number_training + j),1:i])
+    colnames(newdata) <- c("x1",names)
+    errors[j] <- (data[(number_training + j),"TARGET"] - predict(model, newdata=newdata))^2
   }
   mean_error[i] <- mean(errors)
 }
