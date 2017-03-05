@@ -158,11 +158,10 @@ which.min(mean_error)
 
 ###Lasso
 library(glmnet)
-
+errors <- c()
 for (j in 1:(nrow(data)-number_training)){
-  errors <- c()
   fit <- glmnet(as.matrix(cbind(data[2:(number_training + j),2:50], data[1:(number_training + j-1),1])), as.matrix(data[2:(number_training + j) ,1]), alpha = 1, family = "gaussian")
   newdata <- data.frame(cbind(data[(number_training + j),2:50], data[(number_training + j),1]))
-  errors[j] <- (data[(number_training + j),1] - as.integer(predict.glmnet(fit, newx =as.matrix(newdata), s=0, type="link")))^2
+  errors[j] <- (data[(number_training + j),1] - as.integer(predict.glmnet(fit, newx =as.matrix(newdata), s=0.1, type="link")))^2
 }
-
+mean(errors)
