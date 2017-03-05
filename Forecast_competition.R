@@ -3,7 +3,7 @@ library(tseries)
 library(lmtest)
 library(sandwich)
 library(TSA)
-data <- as.data.frame(read_csv("~/Desktop/forecast-competition/fe-forecast/forecast-competition-training.csv"))
+data <- as.data.frame(read_csv("~/Desktop/fe-forecast/forecast-competition-training.csv"))
 
 # Plot TARGET variable
 plot(data[,"TIME"],data[,"TARGET"], col="red",type="l")
@@ -134,25 +134,26 @@ garch11 <- garch(data[,"TARGET"], order = c(1,1))
 AIC(garch11)
 
 # Compute principal components
-x <- prcomp(data[,3:ncol(data)], center=T, scale.=T)
-principal_components <- x$x
-
 number_training <- 400
 mean_error <- c()
 for (i in 1:49){
+  errors <- c()
   for (j in 1:(nrow(data)-number_training)){
-    errors <- c()
     x <- prcomp(data[1:(number_training + j),3:ncol(data)], center=T, scale.=T)
     principal_components <- x$x
     x1 <- data[1:(number_training + j - 2),"TARGET"]
-    model <- lm(data[2:(number_training + j - 1),"TARGET"] ~ x1  + principal_components[1:(nrow(principal_components)-2),1:i])
-    names <- paste0(rep("principal_components[1:(nrow(principal_components) - 2), 1:i]",i),"PC",1:i)
-    newdata <- data.frame(data[number_training + j - 1,"TARGET"],principal_components[(number_training + j),1:i])
-    colnames(newdata) <- c("x1",names)
+    data_new <- as.data.frame(cbind(data[2:(number_training + j - 1),"TARGET"],x1,matrix(principal_components[1:(nrow(principal_components)-2),1:i, drop=F],nrow=(nrow(principal_components)-2))))
+    colnames(data_new) <- c("y","x1",colnames(principal_components[1:(nrow(principal_components)-2),1:i, drop=F]))
+    model <- lm(y ~ ., data=data_new)
+    newdata <- cbind(data[number_training + j - 1,"TARGET"],principal_components[nrow(principal_components),1:i, drop=F])
+    colnames(newdata)[1] <- "x1"
+    newdata <- as.data.frame(newdata)
     errors[j] <- (data[(number_training + j),"TARGET"] - predict(model, newdata=newdata))^2
   }
   mean_error[i] <- mean(errors)
 }
+plot(1:49,mean_error,type="l")
+mean_error[which.min(mean_error)]
 which.min(mean_error)
 
 
