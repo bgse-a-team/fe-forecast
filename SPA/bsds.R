@@ -18,14 +18,14 @@ spa <- function(bench, models, B, w, type='STUDENTIZED', boot='STATIONARY') {
   colnames(bsdata) <- NULL
   # OK now we have the bootstraps, what to do with them?
   diffs <- models-matrix(rep(bench),nrow=t,ncol=k)
-  
+
   # first compute the bootstrap sample averages, db*
   # second compute the variance estimate, omegak
   # first the kernel weights
   q <- 1/w
   i <- c(1:(t-1))
   kappa <- (((t-i)/t)*((1-q)^i))+((i/t)*((1-q)^(t-i)))
-  
+
   # next compute the variances
   vars <- matrix(nrow=1,ncol=k)
   for (i in 1:k) {
@@ -35,29 +35,29 @@ spa <- function(bench, models, B, w, type='STUDENTIZED', boot='STATIONARY') {
       vars[i] <- vars[i] + 2*kappa[j]*(t(workdata[1:(t-j)])%*%(workdata[(j+1):t]))/t
     }
   }
-  
+
   # Aold is the original method to compute the truncation point
   Aold <- (1/4)*(t^(0.25))*sqrt(vars/t)
   mean(Aold)
   # Anew uses the log(log(t)) rule
   Anew <- sqrt((vars/t)*2*log(log(t)))
   mean(Anew)
-  
+
   # Only recenter if the average is reasonably small or the model is better
   # (in which case mean(diffs) is negative).  If it is unreasonably large set
   # the mean adjustment to 0
   gc <- colMeans(diffs)*(mean(diffs)<Anew)
-  
+
   # The lower assumes that every loss function that is worse than BM is
   # unimportant for the asymptotic distribution, hence if its mean is
   # less than 0, g=0.  This is different from the consistent where the
   # threshold was it had to be greater than -A(i)
   gl <- sapply(colMeans(diffs), function(x) min(x,0))
-  
+
   # Then the upper, which assumes all models used are reasonably close to
   # the benchmark that they could be better
   gu <- colMeans(diffs)
-  
+
   # Perf will hold the boostrapped statistics for B iterations
   perfc <- matrix(nrow=B,ncol=k)
   perfl <- matrix(nrow=B,ncol=k)
@@ -68,7 +68,7 @@ spa <- function(bench, models, B, w, type='STUDENTIZED', boot='STATIONARY') {
   else {
     stdDev <- matrix(1,nrow=1,ncol=k)
   }
-  
+
   for (i in 1:k) {
     workdata <- diffs[,i]
     # the i'th column of perf holds the B bootstrapped statistics
@@ -90,7 +90,7 @@ spa <- function(bench, models, B, w, type='STUDENTIZED', boot='STATIONARY') {
   c <- mean(perfc<stat)
   l <- mean(perfl<stat)
   u <- mean(perfu<stat)
-  return(c(c,u,l))
+  return(list(c=c, l=l, u=u))
 }
 
 # data <- as.matrix(read.csv('testdata.csv',header = F))
