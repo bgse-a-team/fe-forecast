@@ -92,19 +92,3 @@ spa <- function(bench, models, B, w, type='STUDENTIZED', boot='STATIONARY') {
   u <- mean(perfu<stat)
   return(list(c=c, l=l, u=u))
 }
-
-# data <- as.matrix(read.csv('testdata.csv',header = F))
-# colnames(data) <- NULL
-# bench <- data[,1]
-# models <- data[,-1]
-# t <- nrow(bench)
-# k <- ncol(models)
-t <- 1000
-k <- 100
-bench <- rnorm(t)^2
-models <- matrix(rnorm(t*k)^2,nrow=t,ncol=k)
-B <- 1000
-w <- 12
-
-results <- spa(bench, models, B, w, type="STUDENTIZED", boot="BLOCK")
-print(results)
